@@ -1,19 +1,18 @@
-"""Probe Sakana da runner US: paese egress + /models + ping. Key da env SK (mai stampata)."""
+"""Fase 2: risposte reali + usage da fugu/fugu-ultra. Key da env SK (mai stampata)."""
 import os, json, urllib.request, urllib.error
 
-key = os.environ.get("SK", "")
+key = os.environ["SK"]
+base = "https://api.sakana.ai/v1"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 
 
-def call(url, data=None, auth=False):
-    h = {"User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json"}
-    if auth and key:
-        h["Authorization"] = "Bearer " + key
-    body = json.dumps(data).encode() if data is not None else None
-    method = "POST" if data is not None else "GET"
-    req = urllib.request.Request(url, data=body, headers=h, method=method)
+def chat(model, content, mx=200):
+    h = {"User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json",
+         "Authorization": "Bearer " + key}
+    data = {"model": model, "messages": [{"role": "user", "content": content}], "max_tokens": mx}
+    req = urllib.request.Request(base + "/chat/completions", data=json.dumps(data).encode(), headers=h, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(req, timeout=120) as r:
             return r.status, r.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode("utf-8", "replace")
@@ -21,28 +20,18 @@ def call(url, data=None, auth=False):
         return "ERR", repr(e)
 
 
-st, b = call("https://ipinfo.io/json")
-print("== IPINFO ->", st)
-print(b[:250])
-print("key set:", bool(key))
-
-for base in ["https://api.sakana.ai/v1", "https://api.sakana.ai/openai/v1"]:
-    st, b = call(base + "/models", auth=True)
-    print("\n== GET", base + "/models ->", st)
-    print(b[:1200])
-    ids = []
-    try:
-        ids = [m.get("id") for m in json.loads(b).get("data", [])]
-    except Exception:
-        pass
-    if isinstance(st, int) and st == 200 and ids:
-        print("MODEL IDS:", ids)
-        mid = "fugu" if "fugu" in ids else ids[0]
-        st2, b2 = call(base + "/chat/completions", {
-            "model": mid,
-            "messages": [{"role": "user", "content": "Reply with exactly the single word: PONG"}],
-            "max_tokens": 12,
-        }, auth=True)
-        print("== CHAT [", mid, "] ->", st2)
-        print(b2[:800])
-        break
+QS = [
+    ("factual", "What is the capital of Australia? Answer with one word."),
+    ("false_premise", "In what year did Albert Einstein receive the Nobel Prize specifically for his theory of relativity? Answer concisely."),
+]
+for model in ["fugu", "fugu-ultra"]:
+    for tag, q in QS:
+        st, b = chat(model, q)
+        print("\n=== %s | %s -> %s" % (model, tag, st))
+        try:
+            j = json.loads(b)
+            msg = j["choices"][0]["message"]["content"]
+            print("ANSWER:", msg.strip()[:600])
+            print("USAGE:", j.get("usage"))
+        except Exception as ex:
+            print("RAW:", b[:500], "| parse-err", ex)
