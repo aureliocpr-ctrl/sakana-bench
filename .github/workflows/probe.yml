@@ -10,15 +10,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: run coding field-test (fugu side)
+      - name: fugu-ultra via Responses API
         env:
           SK: ${{ secrets.SK }}
           CODE_PROMPT: ${{ secrets.CODE_PROMPT }}
-        run: python -u code_bench.py
-      - name: upload code results
+        run: python -u ultra_responses.py
+      - name: upload ultra results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: code_results
-          path: code_results.json
+          name: ultra_code
+          path: ultra_results.json
           if-no-files-found: warn
