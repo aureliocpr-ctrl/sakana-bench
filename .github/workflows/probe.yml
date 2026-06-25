@@ -10,15 +10,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: fugu-ultra via Responses API
+      - name: build-from-scratch (fugu + fugu-ultra)
         env:
           SK: ${{ secrets.SK }}
-          CODE_PROMPT: ${{ secrets.CODE_PROMPT }}
-        run: python -u ultra_responses.py
-      - name: upload ultra results
+        run: python -u build_bench.py
+      - name: upload build results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ultra_code
-          path: ultra_results.json
+          name: build_results
+          path: build_results.json
           if-no-files-found: warn

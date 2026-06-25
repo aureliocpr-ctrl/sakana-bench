@@ -1,0 +1,32 @@
+Build, FROM SCRATCH, a complete, production-quality Python module named `calc.py`.
+
+It must expose a public function:
+    evaluate(expr: str) -> float
+that parses and evaluates an arithmetic expression and returns the result as a float.
+
+HARD REQUIREMENTS:
+1. Binary operators: + - * / % and ** (exponentiation), plus parentheses ( ).
+2. Unary minus and unary plus (e.g. "-5", "+3", "-(2+3)", "--5").
+3. Operator precedence, from LOWEST to HIGHEST:
+     +  -        (left-associative)
+     *  /  %     (left-associative)
+     unary + and unary -
+     **          (exponentiation, RIGHT-associative)
+   IMPORTANT (match Python): ** binds TIGHTER than unary minus, so:
+       "-2 ** 2"    == -4.0
+       "2 ** 3 ** 2" == 512.0
+       "(-2) ** 2"  == 4.0
+4. Numbers may be integers or decimals: "3", "3.5", ".5", "10." are all valid. ALWAYS return a float.
+5. Constants: `pi` (math.pi) and `e` (math.e).
+6. One-argument functions: `sqrt(x)` and `abs(x)`. Example: "sqrt(16)" -> 4.0, "abs(3-10)" -> 7.0.
+7. Ignore all whitespace between tokens.
+8. You MUST implement a real tokenizer + parser + evaluator. Do NOT use Python's eval(), exec(),
+   ast.literal_eval, compile(), or any similar shortcut. If you use any of those the solution is REJECTED.
+9. Error handling: raise ValueError (with a clear message) for ANY malformed input — e.g. "", "2+", "(1+2",
+   "1 2", "*5", "2**", unbalanced parentheses, unexpected characters, an unknown identifier or function
+   (e.g. "x", "foo(2)"). Raise ValueError on division by zero and modulo by zero too (convert Python's
+   ZeroDivisionError into ValueError). A custom exception is fine but it MUST subclass ValueError.
+10. Standard library only (you may import `math`). Include full docstrings and type hints.
+
+OUTPUT: return ONLY the complete Python source code of calc.py. No markdown code fences, no prose
+before or after the code. The first characters of your output must be valid Python.
