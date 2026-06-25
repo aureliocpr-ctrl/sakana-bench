@@ -47,8 +47,9 @@ def chat_stream(model, content, mx, timeout_s):
 
 
 out = {}
+MX = {"fugu-ultra": 16000, "fugu": 8000}   # ultra: budget alto, l'orchestrazione mangia l'output
 for model in ("fugu-ultra", "fugu"):
-    st, ans, usage, finish = chat_stream(model, prompt, 4000, 300)
+    st, ans, usage, finish = chat_stream(model, prompt, MX[model], 480)
     out[model] = {"answer": ans, "usage": usage, "status": st, "finish_reason": finish}
     print(model, "->", st, "len", len(ans or ""), "has_def", "def apply_edit(" in (ans or ""), flush=True)
 
