@@ -11,16 +11,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: fugu-ultra builds minilang (agentic loop)
+      - name: fugu-ultra grows minilang (agentic, spends credits)
         env:
           SK: ${{ secrets.SK }}
-        run: python -u agent.py
-      - name: upload minilang project
+          MAX_CALLS: '15'
+        run: python -u agent_grow.py
+      - name: upload grown project
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: minilang
+          name: minilang_grown
           path: |
             minilang.py
             transcript.json
+            added.txt
           if-no-files-found: warn
