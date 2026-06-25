@@ -5,19 +5,22 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: build-from-scratch (fugu + fugu-ultra)
+      - name: fugu-ultra builds minilang (agentic loop)
         env:
           SK: ${{ secrets.SK }}
-        run: python -u build_bench.py
-      - name: upload build results
+        run: python -u agent.py
+      - name: upload minilang project
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build_results
-          path: build_results.json
+          name: minilang
+          path: |
+            minilang.py
+            transcript.json
           if-no-files-found: warn
